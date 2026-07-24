@@ -8,8 +8,22 @@
 #define SYM  2
 #define ADJ  3
 
-#define LEFT_KEYS  0 1 2 3 4 10 11 12 13 14 15 22 23 24 25 26
-#define RIGHT_KEYS 5 6 7 8 9 16 17 18 19 20 21 27 28 29 30 31
+// ---------------------------------------------------------------------------
+// Verified key positions, taken from the stock TOTEM shield keymap.
+//
+//   0..9    top row     Q W E R T | Y U I O P
+//   10..19  home row    A S D F G | H J K L '
+//   20      LEFT PINKY  (sits at the start of the bottom row)
+//   21..30  bottom row  Z X C V B | N M , . /
+//   31      RIGHT PINKY (sits at the end of the bottom row)
+//   32..34  left thumb  ESC SPACE TAB
+//   35..37  right thumb RET BSPC DEL
+//
+// Note the two pinky keys flank the BOTTOM row, not the home row.
+// ---------------------------------------------------------------------------
+
+#define LEFT_KEYS  0 1 2 3 4 10 11 12 13 14 20 21 22 23 24 25
+#define RIGHT_KEYS 5 6 7 8 9 15 16 17 18 19 26 27 28 29 30 31
 #define THUMBS     32 33 34 35 36 37
 
 / {
@@ -41,7 +55,7 @@
             bindings = <&kp>, <&kp>;
         };
 
-        // Left outer pinky: tap for sticky shift, hold for the adjust layer.
+        // Left pinky: tap for sticky shift, hold for the adjust layer.
         // tap-preferred because the tap is by far the more common intent.
         sl_shift: sticky_shift_or_layer {
             compatible = "zmk,behavior-hold-tap";
@@ -60,48 +74,111 @@
         };
     };
 
+    macros {
+        macro_pars: macro_pars {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LPAR &kp RPAR &kp LEFT>;
+        };
+        macro_bkts: macro_bkts {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LBKT &kp RBKT &kp LEFT>;
+        };
+        macro_brcs: macro_brcs {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LBRC &kp RBRC &kp LEFT>;
+        };
+    };
+
     combos {
         compatible = "zmk,combos";
 
+        // Left top row: W+E for escape.
         combo_esc {
             timeout-ms = <40>;
+            require-prior-idle-ms = <120>;
             key-positions = <1 2>;
             bindings = <&kp ESC>;
             layers = <BASE>;
         };
 
-        combo_bspc {
+        // Left top row: E R T -> square brackets, sliding window.
+        combo_lbkt {
             timeout-ms = <40>;
-            key-positions = <7 8>;
-            bindings = <&kp BSPC>;
+            require-prior-idle-ms = <120>;
+            key-positions = <2 3>;
+            bindings = <&kp LBKT>;
+            layers = <BASE>;
+        };
+        combo_rbkt {
+            timeout-ms = <40>;
+            require-prior-idle-ms = <120>;
+            key-positions = <3 4>;
+            bindings = <&kp RBKT>;
+            layers = <BASE>;
+        };
+        combo_bkts {
+            timeout-ms = <50>;
+            require-prior-idle-ms = <120>;
+            key-positions = <2 3 4>;
+            bindings = <&macro_bkts>;
             layers = <BASE>;
         };
 
+        // Right top row: U I O -> parentheses, sliding window.
         combo_lpar {
             timeout-ms = <40>;
-            key-positions = <2 3>;
+            require-prior-idle-ms = <120>;
+            key-positions = <6 7>;
             bindings = <&kp LPAR>;
             layers = <BASE>;
         };
-
         combo_rpar {
             timeout-ms = <40>;
-            key-positions = <6 7>;
+            require-prior-idle-ms = <120>;
+            key-positions = <7 8>;
             bindings = <&kp RPAR>;
             layers = <BASE>;
         };
-
-        combo_caps_word {
+        combo_pars {
             timeout-ms = <50>;
-            key-positions = <13 18>;
-            bindings = <&caps_word>;
+            require-prior-idle-ms = <120>;
+            key-positions = <6 7 8>;
+            bindings = <&macro_pars>;
             layers = <BASE>;
         };
 
-        combo_ret {
+        // Left bottom row: X C V -> curly braces, sliding window.
+        combo_lbrc {
             timeout-ms = <40>;
-            key-positions = <28 29>;
-            bindings = <&kp RET>;
+            require-prior-idle-ms = <120>;
+            key-positions = <22 23>;
+            bindings = <&kp LBRC>;
+            layers = <BASE>;
+        };
+        combo_rbrc {
+            timeout-ms = <40>;
+            require-prior-idle-ms = <120>;
+            key-positions = <23 24>;
+            bindings = <&kp RBRC>;
+            layers = <BASE>;
+        };
+        combo_brcs {
+            timeout-ms = <50>;
+            require-prior-idle-ms = <120>;
+            key-positions = <22 23 24>;
+            bindings = <&macro_brcs>;
+            layers = <BASE>;
+        };
+
+        // Home row index fingers (F + J) for caps word.
+        combo_caps_word {
+            timeout-ms = <50>;
+            require-prior-idle-ms = <120>;
+            key-positions = <13 16>;
+            bindings = <&caps_word>;
             layers = <BASE>;
         };
     };
@@ -112,48 +189,40 @@
         base_layer {
             display-name = "Base";
             bindings = <
-&kp Q         &kp W        &kp E         &kp R         &kp T             &kp Y      &kp U         &kp I          &kp O        &kp P
-&sl_shift ADJ LSHFT
-&hml LGUI A   &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G             &kp H      &hmr RSHFT J  &hmr RCTRL K   &hmr RALT L  &hmr RGUI SEMI
-&kp SQT
-&kp Z         &kp X        &kp C         &kp V         &kp B             &kp N      &kp M         &kp COMMA      &kp DOT      &kp FSLH
-                           &kp ESC       &lt NAV BSPC  &kp TAB           &kp RET    &lt SYM SPACE &kp DEL
+                       &kp Q         &kp W        &kp E         &kp R         &kp T           &kp Y      &kp U         &kp I        &kp O        &kp P
+                       &hml LGUI A   &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G           &kp H      &hmr RSHFT J  &hmr RCTRL K &hmr RALT L  &hmr RGUI SQT
+&sl_shift ADJ LSHFT    &kp Z         &kp X        &kp C         &kp V         &kp B           &kp N      &kp M         &kp COMMA    &kp DOT      &kp SLASH      &kp SEMI
+                                                  &kp ESC       &lt NAV BSPC  &kp TAB                    &kp RET       &lt SYM SPACE &kp DEL
             >;
         };
 
         nav_layer {
             display-name = "Nav";
             bindings = <
-&kp EXCL      &kp AT       &kp HASH      &kp DLLR      &kp PRCNT         &kp CARET  &kp AMPS      &kp ASTRK      &kp LPAR     &kp RPAR
-&caps_word
-&kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &kp CAPS          &kp LEFT   &kp DOWN      &kp UP         &kp RIGHT    &kp K_APP
-&kp BSLH
-&kp K_UNDO    &kp K_CUT    &kp K_COPY    &kp K_PASTE   &kp K_REDO        &kp HOME   &kp PG_DN     &kp PG_UP      &kp END      &kp INS
-                           &kp ESC       &trans        &to BASE          &kp RET    &kp SPACE     &mo ADJ
+                       &kp EXCL      &kp AT       &kp HASH      &kp DLLR      &kp PRCNT       &kp CARET  &kp AMPS      &kp ASTRK    &kp LPAR     &kp RPAR
+                       &kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &kp CAPS        &kp LEFT   &kp DOWN      &kp UP       &kp RIGHT    &kp K_APP
+&caps_word             &kp K_UNDO    &kp K_CUT    &kp K_COPY    &kp K_PASTE   &kp K_REDO      &kp HOME   &kp PG_DN     &kp PG_UP    &kp END      &kp INS        &kp BSLH
+                                                  &kp ESC       &trans        &to BASE                   &kp RET       &kp SPACE    &mo ADJ
             >;
         };
 
         sym_layer {
             display-name = "Sym";
             bindings = <
-&kp TILDE     &kp LBKT     &kp RBKT      &kp LBRC      &kp RBRC          &kp FSLH   &kp N7        &kp N8         &kp N9       &kp MINUS
-&kp CAPS
-&kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &kp GRAVE         &kp ASTRK  &kp N4        &kp N5         &kp N6       &kp PLUS
-&kp DQT
-&kp BSLH      &kp PIPE     &kp LT        &kp GT        &kp EQUAL         &kp N0     &kp N1        &kp N2         &kp N3       &kp DOT
-                           &kp ESC       &mo ADJ       &kp TAB           &to BASE   &trans        &kp DEL
+                       &kp TILDE     &kp LBKT     &kp RBKT      &kp LBRC      &kp RBRC        &kp SLASH  &kp N7        &kp N8       &kp N9       &kp MINUS
+                       &kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &kp GRAVE       &kp ASTRK  &kp N4        &kp N5       &kp N6       &kp PLUS
+&kp CAPS               &kp BSLH      &kp PIPE     &kp LT        &kp GT        &kp EQUAL       &kp N0     &kp N1        &kp N2       &kp N3       &kp DOT        &kp DQT
+                                                  &kp ESC       &mo ADJ       &to BASE                   &kp RET       &trans       &kp DEL
             >;
         };
 
         adjust_layer {
             display-name = "Adjust";
             bindings = <
-&bt BT_SEL 0  &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_CLR        &kp F10    &kp F7        &kp F8         &kp F9       &to NAV
-&trans
-&kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &out OUT_TOG      &kp F11    &kp F4        &kp F5         &kp F6       &to SYM
-&trans
-&bootloader   &sys_reset   &kp C_PREV    &kp C_PP      &kp C_NEXT        &kp F12    &kp F1        &kp F2         &kp F3       &to BASE
-                           &kp C_MUTE    &trans        &kp C_VOL_DN      &kp C_VOL_UP &trans      &trans
+                       &bt BT_SEL 0  &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_CLR      &kp F10    &kp F7        &kp F8       &kp F9       &to NAV
+                       &kp LGUI      &kp LALT     &kp LCTRL     &kp LSHFT     &out OUT_TOG    &kp F11    &kp F4        &kp F5       &kp F6       &to SYM
+&trans                 &bootloader   &sys_reset   &kp C_PREV    &kp C_PP      &kp C_NEXT      &kp F12    &kp F1        &kp F2       &kp F3       &to BASE       &trans
+                                                  &kp C_MUTE    &trans        &kp C_VOL_DN               &kp C_VOL_UP  &trans       &trans
             >;
         };
     };
